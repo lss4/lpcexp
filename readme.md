@@ -38,11 +38,11 @@ wcl -5 -bt=dos -fe=intisa.exe helper.c lpc.c intel.c main_intel.c
 ## III. Build for AMD
 32-bit (requires DOS4G(W)/DOS32A)
 ```
-wcl386 -bt=dos -l=dos4g -fe=amdisaex.exe helper.c lpc.c amd.c main_amd.c`
+wcl386 -bt=dos -l=dos4g -fe=amdisaex.exe helper.c lpc.c amd.c main_amd.c
 ```
 16-bit
 ```
-wcl -5 -bt=dos -fe=amdisa.exe helper.c lpc.c amd.c main_amd.c`
+wcl -5 -bt=dos -fe=amdisa.exe helper.c lpc.c amd.c main_amd.c
 ```
 ## IV. References
 Some useful reference documents can be found in the docs folder.
