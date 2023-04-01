@@ -36,6 +36,10 @@ int main(int argc, char* argv[])
 
     Configure_LPC_Ranges();
 
+    LPC_Misc_Config();
+
+    LPC_Clear_DMA();
+
     clearpci();
 
     return 0;
