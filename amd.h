@@ -5,6 +5,7 @@
 
 int CheckAMDController();
 void ViewAMDLPCStates();
+void EnableLDRQ();
 void ConfigureLPCIOMapping();
 void ConfigureLPCWideRanges();
 void ConfigureLPCBridge();

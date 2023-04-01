@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
     ViewAMDLPCStates();
     #endif
 
+    EnableLDRQ();
     ConfigureLPCIOMapping();
     ConfigureLPCWideRanges();
 

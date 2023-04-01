@@ -9,8 +9,10 @@
 #define REG_AMD_LPC_IO_PORT_DECODE      0x8000A344 // For common ports
 #define REG_AMD_LPC_IOMEM_DECODE        0x8000A348 // For some other ranges as well as enabling Wide I/O.
 #define REG_AMD_LPC_WIDE_IO_0_AND_1     0x8000A364
+#define REG_AMD_LPC_MISC_CTRL           0x8000A378
 #define REG_AMD_LPC_WIDE_IO_2           0x8000A390
 
+#define AMD_ENABLE_LDRQ                 0x0000000C
 #define AMD_ENABLE_AUDIO_IO_MAP         0x93FFD700
 #define AMD_ENABLE_ALTCFG_AND_WIDE_IO   0x03000006
 
@@ -50,16 +52,23 @@ int CheckAMDController()
 void ViewAMDLPCStates()
 {
     uint32_t pcictrl = readpci(REG_AMD_LPC_PCI_CTRL);
+    uint32_t miscctrl = readpci(REG_AMD_LPC_MISC_CTRL);
     uint32_t ioport = readpci(REG_AMD_LPC_IO_PORT_DECODE);
     uint32_t iomem = readpci(REG_AMD_LPC_IOMEM_DECODE);
     uint32_t wide01 = readpci(REG_AMD_LPC_WIDE_IO_0_AND_1);
     uint32_t wide2 = readpci(REG_AMD_LPC_WIDE_IO_2);
 
     printf("PCI Control: %08lX\n", pcictrl);
+    printf("Misc Control: %08lX\n", miscctrl);
     printf("IO Port Decode: %08lX\n", ioport);
     printf("IO/Mem Decode: %08lX\n", iomem);
     printf("Wide IO 0 and 1: %08lX\n", wide01);
     printf("Wide IO 2: %08lX\n", wide2);
+}
+
+void EnableLDRQ()
+{
+    writepci(REG_AMD_LPC_MISC_CTRL, readpci(REG_AMD_LPC_MISC_CTRL) | AMD_ENABLE_LDRQ);
 }
 
 void ConfigureLPCIOMapping()
