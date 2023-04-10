@@ -1,5 +1,7 @@
 #include "helper.h"
 
+#define PCI_ENABLE_BIT  0x80000000
+
 #ifdef _M_I86
 // NOTE: When using 16-bit compiler, _inpd and _outpd are not available.
 //       Opcodes involving EAX must be emitted by hand when using 16-bit compiler.
@@ -103,20 +105,43 @@ uint32_t LPCEnc(uint32_t BASE, uint32_t MASK)
     return BASE | (MASK << 16) | 0x01;
 }
 
-void writepci(uint32_t address, uint32_t val)
+void writepci_addr(uint32_t address, uint32_t val)
 {
     _outpd(0xCF8, address);
     _outpd(0xCFC, val);
     _outpd(0xCF8, 0x00000000);
 }
 
-uint32_t readpci(uint32_t address)
+uint32_t readpci_addr(uint32_t address)
 {
 	uint32_t val;
 	_outpd(0xCF8, address);
 	val = _inpd(0xCFC);
 	_outpd(0xCF8, 0x00000000);
     return val;
+}
+
+uint32_t getaddr(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg)
+{
+    // Limitations.
+    uint32_t bus_a = bus & 0xFFFF;
+    uint32_t device_a = device & 0x1F;
+    uint32_t func_a = func & 0x7;
+    uint32_t pcireg_a = pcireg & 0xFF;
+
+    return (PCI_ENABLE_BIT | (bus_a << 16) | (device_a << 11) | (func_a << 8) | (pcireg_a));
+}
+
+void writepci(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg, uint32_t val)
+{
+    uint32_t addr = getaddr(bus, device, func, pcireg);
+    writepci_addr(addr, val);
+}
+
+uint32_t readpci(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg)
+{
+    uint32_t addr = getaddr(bus, device, func, pcireg);
+    return readpci_addr(addr);
 }
 
 void clearpci()

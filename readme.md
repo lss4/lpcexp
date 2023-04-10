@@ -3,6 +3,13 @@ This configures the motherboard's LPC controller to forward ports necessary
 for sound cards to function on RUBY-9719VG2AR or a compatible motherboard 
 using [dISAppointment](https://github.com/rasteri/dISAppointment).
 
+Currently supports Intel and AMD chipsets. However, be noted that the LDRQ# 
+signal needed for LPC DMA has been removed since Intel 100 series (Skylake) 
+and AMD Socket AM5/SP5 (Raphael/Genoa). While this program can still be used 
+on those and newer systems as usual, DMA-related functions, namely digitized 
+audio in DOS games, will not work. FM Synth, on the other hand, will still 
+be able to work as it does not rely on DMA to function.
+
 ## I. Preparation
 Requires Open Watcom to build. I'm using Open Watcom 2.0.
 
@@ -14,36 +21,44 @@ location `/opt/watcom`.
 export INCLUDE=$WATCOM/h
 ```
 
-If you want the program to print the states of some related registers before 
-configuring, add `-dVERBOSE`.
+If you want the program to print the detailed states of some related registers 
+before and after configuring, add `-dVERBOSE` when building.
 
 Note that there may be too many lines of output to be displayed when running 
 in real DOS. You may want to consider redirecting the output to a file so you 
-can examine it later. An example with `intisa`:
+can examine it later:
 
 ```
-intisa > output.txt
+lpcisa > output.txt
 ```
 
-## II. Build for Intel
+## II. Building
 32-bit (requires DOS4G(W)/DOS32A)
 ```
-wcl386 -bt=dos -l=dos4g -fe=intisaex.exe helper.c lpc.c intel.c main_intel.c
+wcl386 -bt=dos -l=dos4g -fe=lpcisaex.exe helper.c lpc.c intel.c amd.c main.c
 ```
 16-bit
 ```
-wcl -5 -bt=dos -fe=intisa.exe helper.c lpc.c intel.c main_intel.c
+wcl -5 -bt=dos -fe=lpcisa.exe helper.c lpc.c intel.c amd.c main.c
 ```
 
-## III. Build for AMD
-32-bit (requires DOS4G(W)/DOS32A)
+## III. Usage
+
 ```
-wcl386 -bt=dos -l=dos4g -fe=amdisaex.exe helper.c lpc.c amd.c main_amd.c
+lpcisa [base1 mask1] [base2 mask2] [base3 mask3] [base4 mask4]
 ```
-16-bit
-```
-wcl -5 -bt=dos -fe=amdisa.exe helper.c lpc.c amd.c main_amd.c
-```
+
+The program will try to determine the system's chipset vendor by querying the 
+root complex, and perform configurations accordingly.
+
+For Intel chipsets, up to 4 sets of base addresses and masks can be configured.
+
+For AMD chipsets, up to 3 sets of base addresses and masks can be configured.
+
+Note that for AMD chipsets, masks behave differently. If set to 0, the range 
+will be configured in alternative mode which limits to 16 bytes. Otherwise, 
+it will be configured in normal mode which covers up to 512 bytes.
+
 ## IV. References
 Some useful reference documents can be found in the docs folder.
 
