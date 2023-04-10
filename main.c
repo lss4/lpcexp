@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
         case IS_AMD_CHIPSET:
             ret = main_amd(argc, argv);
             break;
-        case CHIPSET_UNSUPPORTED:
+        default:
             return 8;
     }
 
