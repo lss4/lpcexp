@@ -11,41 +11,38 @@ audio in DOS games, will not work. FM Synth, on the other hand, will still
 be able to work as it does not rely on DMA to function.
 
 ## I. Preparation
-Requires Open Watcom to build. I'm using Open Watcom 2.0.
+Requires Open Watcom to build. I'm currently using Open Watcom 2.0.
 
-To prepare the build environment, assuming using Linux and the install 
-location `/opt/watcom`.
-
-```
-. /opt/watcom/owsetenv.sh
-export INCLUDE=$WATCOM/h
-```
-
-If you want the program to print the detailed states of some related registers 
-before and after configuring, add `-dVERBOSE` when building.
-
-Note that there may be too many lines of output to be displayed when running 
-in real DOS. You may want to consider redirecting the output to a file so you 
-can examine it later:
+You need to export the path where you installed Open Watcom into. For example:
 
 ```
-lpcisa > output.txt
+export WATCOM=/opt/watcom
 ```
 
-## II. Building
-32-bit (requires DOS4G(W)/DOS32A)
-```
-wcl386 -bt=dos -l=dos4g -fe=lpcisaex.exe helper.c lpc.c intel.c amd.c main.c
-```
-16-bit
-```
-wcl -5 -bt=dos -fe=lpcisa.exe helper.c lpc.c intel.c amd.c main.c
-```
+## II. Building using Makefile
+
+Currently the Makefile is meant for building the program on Linux. The Makefile 
+will build both 16-bit and 32-bit versions.
+
+Use `make` to build them. If you want to enable verbose output (which is mainly 
+about related register states), use `make debug`.
+
+`lpcisa.exe` is the 16-bit version that can be run directly.
+
+`lpcisaex.exe` is the 32-bit version, which requires DOS32A or DOS4GW.
 
 ## III. Usage
 
 ```
 lpcisa [base1 mask1] [base2 mask2] [base3 mask3] [base4 mask4]
+```
+
+Note that there may be too many lines of output to be displayed when running 
+the program, especially if you enabled verbose output. You may want to consider 
+redirecting the output to a file so you can examine it later, for example:
+
+```
+lpcisa > output.txt
 ```
 
 The program will try to determine the system's chipset vendor by querying the 
