@@ -14,7 +14,10 @@
 #define REG_AMD_LPC_WIDE_IO_0_AND_1     0x64
 #define REG_AMD_LPC_ALT_WIDEIO          0x74
 #define REG_AMD_LPC_MISC_CTRL           0x78
+#define REG_AMD_LPC_TPM                 0x7C
 #define REG_AMD_LPC_WIDE_IO_2           0x90
+#define REG_AMD_LPC_CLKCNTRL            0xD0
+#define REG_AMD_LPC_CLKRUNOPTION        0xD4
 
 #define AMD_ENABLE_LDRQ                 0x0000000C
 #define AMD_ENABLE_AUDIO_IO_MAP         0x93FFD700
@@ -106,6 +109,10 @@ void ViewAMDLPCStates()
     uint32_t wide2 = Read_AMD_LPC(REG_AMD_LPC_WIDE_IO_2);
     uint32_t alt_wideio = Read_AMD_LPC(REG_AMD_LPC_ALT_WIDEIO);
 
+    uint32_t tpm = Read_AMD_LPC(REG_AMD_LPC_TPM);
+    uint32_t clk_ctrl = Read_AMD_LPC(REG_AMD_LPC_CLKCNTRL);
+    uint32_t clkrun_opt = Read_AMD_LPC(REG_AMD_LPC_CLKRUNOPTION);
+
     printf("PCI Control: %08lX\n", pcictrl);
     printf("Misc Control: %08lX\n", miscctrl);
     printf("IO Port Decode: %08lX\n", ioport);
@@ -113,6 +120,10 @@ void ViewAMDLPCStates()
     printf("Wide IO 0 and 1: %08lX\n", wide01);
     printf("Wide IO 2: %08lX\n", wide2);
     printf("Alt Wide IO: %08lX\n", alt_wideio);
+
+    printf("TPM: %08lX\n", tpm);
+    printf("LPCCLK Control: %08lX\n", clk_ctrl);
+    printf("CLKRUN Option: %08lX\n", clkrun_opt);
 }
 
 void EnableLDRQ()
