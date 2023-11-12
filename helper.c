@@ -100,11 +100,6 @@ void dec(uint32_t val)
     listports(BASE, MASK);
 }
 
-uint32_t LPCEnc(uint32_t BASE, uint32_t MASK)
-{
-    return BASE | (MASK << 16) | 0x01;
-}
-
 void writepci_addr(uint32_t address, uint32_t val)
 {
     _outpd(0xCF8, address);

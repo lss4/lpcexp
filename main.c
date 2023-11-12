@@ -1,6 +1,5 @@
 #include "helper.h"
 #include "vendor.h"
-#include "lpc.h"
 #include "intel.h"
 #include "amd.h"
 
@@ -18,6 +17,7 @@ int CheckChipset()
             printf("Detected Intel chipset.\n");
             return IS_INTEL_CHIPSET;
         case VEN_AMD_LONG:
+        case VEN_AMD_ATI_LONG:
             printf("Detected AMD chipset.\n");
             return IS_AMD_CHIPSET;
         default:
@@ -31,8 +31,6 @@ int main(int argc, char* argv[])
     // Usage : lpcisa [base1 mask1] [base2 mask2] [base3 mask3] [base4 mask4]
     // For Intel: up to 4 ranges and masks can be accepted.
     // For AMD: up to 3 ranges and masks can be accepted. However, masks behave differently.
-
-    // First determine the chipset.
 
     int chipset = CheckChipset();
     int ret;
@@ -54,34 +52,6 @@ int main(int argc, char* argv[])
         // The chipset-specific routine failed to complete.
         return ret;
     }
-
-    // LPC-ISA bridge part is now unified as address decoders do not need to be configured.
-    // Only some misc config needed.
-
-    LPC_Enable();
-
-    // Check LPC.
-    if (!LPC_Check())
-    {
-        clearpci();
-        return 2;
-    }
-
-    #ifdef VERBOSE
-    printf("Current LPC-ISA Bridge status before processing:\n");
-    LPC_View_Current_State();
-    LPC_View_Range_Tables();
-    #endif
-
-    LPC_Misc_Config();
-
-    LPC_Clear_DMA();
-
-    #ifdef VERBOSE
-    printf("Current LPC-ISA Bridge status after processing:\n");
-    LPC_View_Current_State();
-    LPC_View_Range_Tables();
-    #endif
 
     return 0;
 }

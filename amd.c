@@ -1,6 +1,5 @@
 #include "helper.h"
 #include "amd.h"
-#include "lpc.h"
 #include "vendor.h"
 
 #define DEV_AMD_LPC_BUS         0x0
@@ -23,6 +22,8 @@
 #define AMD_ENABLE_AUDIO_IO_MAP         0x93FFD700
 #define AMD_ENABLE_ALTCFG_AND_WIDE_IO   0x03000006
 #define AMD_ENABLE_ALTCFG               0x00000002
+
+#define AMD_LPCCLK1_GPIO                0x00000800
 
 // Forwarding ranges
 // Default: Range 600-7FF, E00-FFF, A00-BFF
@@ -83,19 +84,30 @@ int CheckAMDLPCController()
 {
     uint32_t tmp = Read_AMD_LPC(REG_AMD_LPC_CTRL_INFO);
     uint32_t ven = tmp & 0x0000FFFF;
+    uint32_t dev;
 
     // Check the LPC controller is there
-    if (ven != VEN_AMD_LONG)
+
+    switch (ven)
     {
-        printf("Can't find AMD LPC controller.\n");
-        printf("(Got %04lX, expected %04X)\n", ven, VEN_AMD);
-        return 0; // false
-    }
-    else
-    {
-        uint32_t dev = tmp >> 16;
-        printf("Found AMD LPC Controller. Dev ID: %04lX\n", dev);
-        return 1; // true
+        case VEN_AMD_LONG:
+            {
+                dev = tmp >> 16;
+                printf("Found AMD LPC Controller. Dev ID: %04lX\n", dev);
+            }
+            return 1;
+        case VEN_AMD_ATI_LONG:
+            {
+                dev = tmp >> 16;
+                printf("Found AMD/ATI LPC Controller. Dev ID: %04lX\n", dev);
+            }
+            return 1;
+        default:
+            {
+                printf("Can't find AMD/ATI LPC controller.\n");
+                printf("(Got %04lX, expected %04X or %04X)\n", ven, VEN_AMD, VEN_AMD_ATI);
+            }
+            return 0;
     }
 }
 
@@ -129,6 +141,11 @@ void ViewAMDLPCStates()
 void EnableLDRQ()
 {
     Write_AMD_LPC(REG_AMD_LPC_MISC_CTRL, Read_AMD_LPC(REG_AMD_LPC_MISC_CTRL) | AMD_ENABLE_LDRQ);
+}
+
+void DisableLPCCLK1GPIO()
+{
+    Write_AMD_LPC(REG_AMD_LPC_TPM, Read_AMD_LPC(REG_AMD_LPC_TPM) & ~AMD_LPCCLK1_GPIO);
 }
 
 void ConfigureLPCIOMapping()
@@ -224,6 +241,7 @@ int main_amd(int argc, char* argv[])
     ProcessAMDArgs(argc, argv);
 
     EnableLDRQ();
+    DisableLPCCLK1GPIO();
     ConfigureLPCIOMapping();
     ConfigureLPCWideRanges();
 

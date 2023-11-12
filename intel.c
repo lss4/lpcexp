@@ -1,6 +1,5 @@
 #include "helper.h"
 #include "intel.h"
-#include "lpc.h"
 #include "vendor.h"
 
 #define DEV_INTEL_LPC_BUS       0
@@ -22,6 +21,11 @@ range intel_ranges[] = {
     {0x388, 0x1C}, //380-38F, 390-39F
     {0xA00, 0xFC}  //A00-AFF
 };
+
+uint32_t LPCEnc(uint32_t BASE, uint32_t MASK)
+{
+    return BASE | (MASK << 16) | 0x01;
+}
 
 uint32_t Read_Intel_LPC(uint32_t reg)
 {

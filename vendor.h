@@ -10,5 +10,7 @@
 #define IS_AMD_CHIPSET      2
 #define VEN_AMD             0x1022
 #define VEN_AMD_LONG        0x00001022
+#define VEN_AMD_ATI         0x1002
+#define VEN_AMD_ATI_LONG    0x00001002
 
 #endif
