@@ -5,6 +5,11 @@
 #define DEV_AMD_LPC_BUS         0x0
 #define DEV_AMD_LPC_DEVICE      0x14
 #define DEV_AMD_LPC_FUNC        0x3
+#define DEV_AMD_HOSTPCI_FUNC    0x4
+
+#define REG_AMD_HOSTPCI_INFO            0x00
+#define REG_AMD_HOSTPCI_CTRL            0x40
+#define REG_AMD_HOSTPCI_CAP             0x48
 
 #define REG_AMD_LPC_CTRL_INFO           0x00
 #define REG_AMD_LPC_PCI_CTRL            0x40 // PCI Control
@@ -22,6 +27,9 @@
 #define AMD_ENABLE_AUDIO_IO_MAP         0x93FFD700
 #define AMD_ENABLE_ALTCFG_AND_WIDE_IO   0x03000006
 #define AMD_ENABLE_ALTCFG               0x00000002
+
+#define AMD_ENABLE_SUB_DECODE           0x00000020
+#define AMD_ENABLE_SUB_DECODE_CAPABLE   0x80000000
 
 #define AMD_LPCCLK1_GPIO                0x00000800
 
@@ -45,9 +53,19 @@ uint32_t Read_AMD_LPC(uint32_t reg)
     return readpci(DEV_AMD_LPC_BUS, DEV_AMD_LPC_DEVICE, DEV_AMD_LPC_FUNC, reg);
 }
 
+uint32_t Read_AMD_HostPCI(uint32_t reg)
+{
+    return readpci(DEV_AMD_LPC_BUS, DEV_AMD_LPC_DEVICE, DEV_AMD_HOSTPCI_FUNC, reg);
+}
+
 void Write_AMD_LPC(uint32_t reg, uint32_t val)
 {
     writepci(DEV_AMD_LPC_BUS, DEV_AMD_LPC_DEVICE, DEV_AMD_LPC_FUNC, reg, val);
+}
+
+void Write_AMD_HostPCI(uint32_t reg, uint32_t val)
+{
+    writepci(DEV_AMD_LPC_BUS, DEV_AMD_LPC_DEVICE, DEV_AMD_HOSTPCI_FUNC, reg, val);
 }
 
 uint32_t Get_WideIO_Enable_Bits()
@@ -111,6 +129,37 @@ int CheckAMDLPCController()
     }
 }
 
+int CheckAMDHostPCIBridge()
+{
+    uint32_t tmp = Read_AMD_HostPCI(REG_AMD_HOSTPCI_INFO);
+    uint32_t ven = tmp & 0x0000FFFF;
+    uint32_t dev;
+
+    // Check the Host PCI Bridge is there
+
+    switch (ven)
+    {
+        case VEN_AMD_LONG:
+            {
+                dev = tmp >> 16;
+                printf("Found AMD Host PCI Bridge. Dev ID: %04lX\n", dev);
+            }
+            return 1;
+        case VEN_AMD_ATI_LONG:
+            {
+                dev = tmp >> 16;
+                printf("Found AMD/ATI Host PCI Bridge. Dev ID: %04lX\n", dev);
+            }
+            return 1;
+        default:
+            {
+                printf("Can't find AMD/ATI Host PCI Bridge.\n");
+                printf("(Got %04lX, expected %04X or %04X)\n", ven, VEN_AMD, VEN_AMD_ATI);
+            }
+            return 0;
+    }
+}
+
 void ViewAMDLPCStates()
 {
     uint32_t pcictrl = Read_AMD_LPC(REG_AMD_LPC_PCI_CTRL);
@@ -137,6 +186,24 @@ void ViewAMDLPCStates()
     printf("LPCCLK Control: %08lX\n", clk_ctrl);
     printf("CLKRUN Option: %08lX\n", clkrun_opt);
 }
+
+#if 0
+void ViewAMDHostPCIStates()
+{
+    uint32_t pcictrl = Read_AMD_HostPCI(REG_AMD_HOSTPCI_CTRL);
+    uint32_t cap = Read_AMD_HostPCI(REG_AMD_HOSTPCI_CAP);
+
+    printf("Host PCI Control: %08lX\n", pcictrl);
+    printf("Host PCI Capability: %08lX\n", cap);
+}
+
+void ConfigureSubtractiveDecoding()
+{
+    // Disable subtractive decoding.
+    Write_AMD_HostPCI(REG_AMD_HOSTPCI_CTRL, Read_AMD_HostPCI(REG_AMD_HOSTPCI_CTRL) & ~AMD_ENABLE_SUB_DECODE);
+    Write_AMD_HostPCI(REG_AMD_HOSTPCI_CAP, Read_AMD_HostPCI(REG_AMD_HOSTPCI_CAP) & ~AMD_ENABLE_SUB_DECODE_CAPABLE);
+}
+#endif
 
 void EnableLDRQ()
 {
@@ -232,6 +299,27 @@ int main_amd(int argc, char* argv[])
         clearpci();
         return 1;
     }
+
+    #if 0
+    if (CheckAMDHostPCIBridge())
+    {
+        #ifdef VERBOSE
+        printf("Current Host PCI Bridge status before processing:\n");
+        ViewAMDHostPCIStates();
+        #endif
+
+        ConfigureSubtractiveDecoding();
+
+        #ifdef VERBOSE
+        printf("Current Host PCI Bridge status after processing:\n");
+        ViewAMDHostPCIStates();
+        #endif
+    }
+    else
+    {
+        printf("Will not configure subtractive decoding.\n");
+    }
+    #endif
 
     #ifdef VERBOSE
     printf("Current LPC Controller status before processing:\n");

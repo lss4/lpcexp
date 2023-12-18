@@ -3,17 +3,21 @@ This configures the motherboard's LPC controller to forward ports necessary
 for sound cards to function on RUBY-9719VG2AR or a compatible motherboard 
 using [dISAppointment](https://github.com/rasteri/dISAppointment).
 
-Currently supports Intel and AMD chipsets. However, be noted that the LDRQ# 
-signal needed for LPC DMA has been removed since Intel 100 series (Skylake) 
-and AMD Socket AM5/SP5 (Raphael/Genoa). While this program can still be used 
-on those and newer systems as usual, DMA-related functions, namely digitized 
-audio in DOS games, will not work. FM Synth, on the other hand, will still 
-be able to work as it does not rely on DMA to function.
+Currently implemented for Intel and AMD chipsets. However, be noted that the 
+LDRQ# signal needed for LPC DMA has been removed since Intel 100 series 
+(Skylake) and AMD Socket AM5/SP5 (Raphael/Genoa). While this program can still 
+be used on those and newer systems as usual, DMA-related functions, namely 
+digitized audio in DOS games, will not work. FM Synth, on the other hand, will 
+still be able to work as it does not rely on DMA to function.
 
 Currently only the Fintek F85226 LPC-ISA bridge is supported. It may be 
 possible to support Winbond W83626, but the documentation on the 
 configuration registers is a bit confusing, as it's currently uncertain 
 how `CRxx` corresponds to the actual register address.
+
+**NOTE:** AMD chipset support is based on existing documentations regarding 
+the LPC bridge and is still WIP. So far no positive results with 
+dISAppointment on AMD motherboards yet.
 
 ## I. Preparation
 Requires Open Watcom to build. I'm currently using Open Watcom 2.0.
@@ -37,14 +41,9 @@ as `DOS32A` or `DOS4GW`.
 The 32-bit variant will have a `x` after the initial filename. 
 For example, the 32-bit variant of `lpcisa` will be called `lpcisax`.
 
-**NOTE**: If you need to use address pair `2Eh`/`2Fh` instead of the usual 
-`4Eh`/`4Fh` for LPC-related programs, you need to set the `LPC_USE_2E` 
-environment variable when building the programs, like this (`lpccmd` for 
-example):
-
-```
-LPC_USE_2E=1 make lpccmd
-```
+For `lpcen`, `lpccmd`, `lpcfchk`, an additional build using the `2Eh`/`2Fh` 
+address pair instead of `4Eh`/`4Fh` are provided, which will have a `2` after 
+the initial filename.
 
 Details on how to use each of the programs will be explained in Usage section.
 
