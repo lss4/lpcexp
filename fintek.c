@@ -59,13 +59,13 @@ int Fintek_Check()
 
     if (tmp != DEV_FINTEK_F85226)
     {
-        printf("Can't find Fintek F85226FG LPC-ISA Bridge\n");
+        printf("Can't find Fintek F85226 LPC-ISA Bridge\n");
         printf("(Got %08lX, expected %08lX)\n", tmp, DEV_FINTEK_F85226);
         return 0;
     }
 	else
 	{
-		printf("Found Fintek F85226FG LPC-ISA Bridge. Version: %X\n", ver);
+		printf("Found Fintek F85226 LPC-ISA Bridge. Version: %X\n", ver);
 		return 1;
 	}
 }

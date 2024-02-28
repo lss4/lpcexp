@@ -32,18 +32,11 @@ export WATCOM=/opt/watcom
 
 Currently the Makefile is meant for building the program on Linux.
 
-Use `make` or `make all` to build the 16-bit variant of all programs.
+Use `make` or `make all` to build all the programs.
 
-You may also build the 32-bit variant of the programs by using `make all32`. 
-However, be noted that the 32-bit variant requires a DOS extender to run, such 
-as `DOS32A` or `DOS4GW`.
-
-The 32-bit variant will have a `x` after the initial filename. 
-For example, the 32-bit variant of `lpcisa` will be called `lpcisax`.
-
-For `lpcen`, `lpccmd`, `lpcfchk`, an additional build using the `2Eh`/`2Fh` 
-address pair instead of `4Eh`/`4Fh` are provided, which will have a `2` after 
-the initial filename.
+For `lpcen`, `lpccmd`, `lpcfchk`, an additional build using the `0x2E`/`0x2F` 
+address pair instead of `0x4E`/`0x4F` are provided, which will have a `2` 
+after the initial filename.
 
 Details on how to use each of the programs will be explained in Usage section.
 
@@ -56,7 +49,7 @@ programs are hexadecimal.**
 1. `lpcen`
 
 This program enables the LPC-ISA bridge's configuration registers 
-by writing `26h` to the location `4Eh` twice.
+by writing `0x26` to the location `0x4E` twice.
 
 You need to run this once per system startup before you can use `lpccmd`.
 
@@ -69,7 +62,8 @@ lpccmd address [value]
 This program reads/writes the value from/to the specified register address on 
 the LPC-ISA bridge.
 
-Enter only address to read, and enter both address and value to write.
+Enter only address to read, and enter both address and value to write. 
+This program reads/writes 1 byte at a time.
 
 You need to run `lpcen` or `lpcfchk` at least once before you can use it.
 
@@ -94,7 +88,35 @@ on the PCI device specified by bus, device and function number.
 Enter bus, device, function and register to read. To write, additionally enter 
 the value you need to write.
 
-5. `lpcisa` / `lpcisav`
+Keep note that this program reads/writes 4 bytes at a time so the register 
+specified should be aligned to 4-byte boundary to ensure they are read/written 
+correctly.
+
+5. `amdpmcmd`
+
+```
+amdpmcmd address [value]
+```
+
+This program reads/writes the value from/to the specified AMD PM register 
+address (accessible via `0xCD6`/`0xCD7` pair).
+
+Enter only address to read, and enter both address and value to write. 
+This program reads/writes 1 byte at a time.
+
+6. `gencmd`
+
+```
+gencmd size address [value]
+```
+
+This program reads/writes the value from/to the specified I/O port. 
+You can specify any port up to `0xFFFF`.
+
+Enter the size and address to read, and additionally enter value to write. 
+The size can be 1-4 bytes (3 is the same as 4).
+
+7. `lpcisa` / `lpcisav`
 
 This program configures the chipset's LPC controller for decoding specified 
 address ranges. By default it configures the ranges useful for sound cards.

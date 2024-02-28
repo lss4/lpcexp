@@ -116,6 +116,22 @@ uint32_t readpci_addr(uint32_t address)
     return val;
 }
 
+uint8_t read_amd_pm(uint8_t address)
+{
+    uint8_t val;
+	_outp(0xCD6, address);
+	val = _inp(0xCD7);
+	_outp(0xCD6, 0x00);
+    return val;
+}
+
+void write_amd_pm(uint8_t address, uint8_t val)
+{
+    _outp (0xCD6, address);
+    _outpd(0xCD7, val);
+    _outp (0xCD6, 0x00);
+}
+
 uint32_t getaddr(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg)
 {
     // Limitations.

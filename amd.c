@@ -329,7 +329,7 @@ int main_amd(int argc, char* argv[])
     ProcessAMDArgs(argc, argv);
 
     EnableLDRQ();
-    DisableLPCCLK1GPIO();
+    // DisableLPCCLK1GPIO();
     ConfigureLPCIOMapping();
     ConfigureLPCWideRanges();
 
