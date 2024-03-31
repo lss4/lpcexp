@@ -92,7 +92,19 @@ Keep note that this program reads/writes 4 bytes at a time so the register
 specified should be aligned to 4-byte boundary to ensure they are read/written 
 correctly.
 
-5. `amdpmcmd`
+5. `pcidump`
+
+```
+pcidump bus device function > file
+```
+
+Similar to `pcicmd`, but this program reads all the registers from `0x00` to 
+`0xFF` of a given PCI device, 4 bytes at a time.
+
+Use `> file` to output to file. If not specified, the program outputs all 
+register values on screen (stdout).
+
+6. `amdpmcmd`
 
 ```
 amdpmcmd address [value]
@@ -104,7 +116,7 @@ address (accessible via `0xCD6`/`0xCD7` pair).
 Enter only address to read, and enter both address and value to write. 
 This program reads/writes 1 byte at a time.
 
-6. `gencmd`
+7. `gencmd`
 
 ```
 gencmd size address [value]
@@ -116,7 +128,7 @@ You can specify any port up to `0xFFFF`.
 Enter the size and address to read, and additionally enter value to write. 
 The size can be 1-4 bytes (3 is the same as 4).
 
-7. `lpcisa` / `lpcisav`
+8. `lpcisa` / `lpcisav`
 
 This program configures the chipset's LPC controller for decoding specified 
 address ranges. By default it configures the ranges useful for sound cards.

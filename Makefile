@@ -45,12 +45,17 @@ PCICMD_FILES := pcicmd.c helper.c
 PCICMD_OBJ   := pcicmd.o helper.o
 PCICMD_EXE   := pcicmd.exe
 
-## AMDPMCMD
+### PCIDUMP
+PCIDUMP_FILES := pcidump.c helper.c
+PCIDUMP_OBJ   := pcidump.o helper.o
+PCIDUMP_EXE   := pcidump.exe
+
+### AMDPMCMD
 AMDPMCMD_FILES := amdpmcmd.c helper.c
 AMDPMCMD_OBJ   := amdpmcmd.o helper.o
 AMDPMCMD_EXE   := amdpmcmd.exe
 
-## GENCMD
+### GENCMD
 GENCMD_FILES := gencmd.c helper.c
 GENCMD_OBJ   := gencmd.o helper.o
 GENCMD_EXE   := gencmd.exe
@@ -61,7 +66,7 @@ LPCISA_OBJ    := helper.o intel.o amd.o main.o
 LPCISA_EXE    := lpcisa.exe
 LPCISAV_EXE   := lpcisav.exe
 
-all:   lpcen lpccmd lpcfchk lpcen2 lpccmd2 lpcfchk2 pcicmd amdpmcmd gencmd lpcisa lpcisav
+all:   lpcen lpccmd lpcfchk lpcen2 lpccmd2 lpcfchk2 pcicmd pcidump amdpmcmd gencmd lpcisa lpcisav
 
 lpcen:
 	$(CL16) $(FLAGS16) -fe=$(LPCEN_EXE) $(LPCEN_FILES)
@@ -84,6 +89,9 @@ lpcfchk2:
 pcicmd:
 	$(CL16) $(FLAGS16) -fe=$(PCICMD_EXE) $(PCICMD_FILES)
 
+pcidump:
+	$(CL16) $(FLAGS16) -fe=$(PCIDUMP_EXE) $(PCIDUMP_FILES)
+
 lpcisa:
 	$(CL16) $(FLAGS16) -fe=$(LPCISA_EXE) $(LPCISA_FILES)
 
@@ -102,6 +110,7 @@ clean:
 	-rm $(LPCCMD_OBJ)
 	-rm $(LPCFCHK_OBJ)
 	-rm $(PCICMD_OBJ)
+	-rm $(PCIDUMP_OBJ)
 	-rm $(LPCISA_OBJ)
 	-rm $(AMDPMCMD_OBJ)
 	-rm $(GENCMD_OBJ)
@@ -112,6 +121,7 @@ clean:
 	-rm $(LPCFCHK_EXE)
 	-rm $(LPCFCHK2_EXE)
 	-rm $(PCICMD_EXE)
+	-rm $(PCIDUMP_EXE)
 	-rm $(LPCISA_EXE)
 	-rm $(LPCISAV_EXE)
 	-rm $(AMDPMCMD_EXE)
