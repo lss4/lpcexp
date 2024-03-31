@@ -13,4 +13,8 @@
 #define VEN_AMD_ATI         0x1002
 #define VEN_AMD_ATI_LONG    0x00001002
 
+#define IS_NVIDIA_CHIPSET   3
+#define VEN_NVIDIA          0x10DE
+#define VEN_NVIDIA_LONG     0x000010DE
+
 #endif
