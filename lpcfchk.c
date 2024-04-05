@@ -11,7 +11,6 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    printf("Fintek LPC-ISA Bridge status:\n");
     Fintek_View_Current_State();
     Fintek_View_Range_Tables();
 

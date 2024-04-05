@@ -2,11 +2,25 @@
 
 #define DEV_FINTEK_F85226 			0x03051934
 #define NUM_GENERAL_DECODE_RANGES 	8
+#define NUM_ROM_DECODE_RANGES		2
+#define NUM_STATUS_REGISTERS		26
 
 // ADDR1-ADDR4: 0x20 0x23, 0x30, 0x33
 // KBC, MC, RTC, IOH: 0x36, 0x39, 0x3C, 0x3F
-uint8_t ISAGenericDecode[NUM_GENERAL_DECODE_RANGES] = {0x20, 0x23, 0x30, 0x33, 0x36, 0x39, 0x3C, 0x3F};
-char* ISAGeneralDecodeNames[NUM_GENERAL_DECODE_RANGES] = {"ADDR1", "ADDR2", "ADDR3", "ADDR4", "KBC", "MC", "RTC", "IOH"};
+uint8_t ISAGenericDecode[NUM_GENERAL_DECODE_RANGES] = 
+	{0x20, 0x23, 0x30, 0x33, 0x36, 0x39, 0x3C, 0x3F};
+char* ISAGeneralDecodeNames[NUM_GENERAL_DECODE_RANGES] = 
+	{"ADDR1", "ADDR2", "ADDR3", "ADDR4", "KBC", "MC", "RTC", "IOH"};
+
+// ROM decode ranges.
+uint8_t ROMDecode[NUM_ROM_DECODE_RANGES] = { 0x28, 0x2C };
+char* ROMDecodeNames[NUM_ROM_DECODE_RANGES] = { "ROM1", "ROM2" };
+
+// Other registers.
+uint8_t LPCRegisterList[NUM_STATUS_REGISTERS] = 
+	{0x03, 0x04, 0x05, 0x06, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 
+	 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+	 0x50, 0x51, 0x52, 0x53, 0x54, 0x55};
 
 void Fintek_PrintRange(uint32_t index)
 {
@@ -24,6 +38,33 @@ void Fintek_PrintRange(uint32_t index)
 	addr |= LPC_Read(base+1);
 	
 	printf("%s range: %X, mask: %X\n", ISAGeneralDecodeNames[index], addr, mask);
+}
+
+void Fintek_PrintROM(uint32_t index)
+{
+	uint8_t base;
+	uint16_t mask;
+	uint16_t addr;
+
+	if (index >= NUM_ROM_DECODE_RANGES) return;
+
+	base = ROMDecode[index];
+	mask = 0;
+	addr = 0;
+	mask |= LPC_Read(base+1);
+	mask <<= 8;
+	mask |= LPC_Read(base);
+	addr |= LPC_Read(base+3);
+	addr <<= 8;
+	addr |= LPC_Read(base+2);
+
+	printf("%s range: %X, mask: %X\n", ROMDecodeNames[index], addr, mask);
+}
+
+void Fintek_PrintSBHE()
+{
+	// NOTE: SBHE (F1h) is specific to F85226AF.
+	printf("SBHE: %02X\n", LPC_Read(0xF1));
 }
 
 void Fintek_SetRange(uint32_t index, range range)
@@ -72,20 +113,25 @@ int Fintek_Check()
 
 void Fintek_View_Current_State()
 {
-	uint8_t reg05h; 
-	uint8_t reg06h; 
-	uint8_t reg50h;
-	uint8_t reg51h;
-	uint8_t reg52h;
+	int i = 0;
 
-	reg05h = LPC_Read(0x05);
-	reg06h = LPC_Read(0x06);
-	reg50h = LPC_Read(0x50);
-	reg51h = LPC_Read(0x51);
-	reg52h = LPC_Read(0x52);
+	printf("F85226 State Registers\n");
 
-	printf("LPC-ISA State Registers (05H,06H,50H,51H,52H)\n");
-	printf("%02X %02X %02X %02X %02X\n", reg05h, reg06h, reg50h, reg51h, reg52h);
+	for (i = 0; i < NUM_STATUS_REGISTERS; i++)
+	{
+		printf("%02X ", LPCRegisterList[i]);
+	}
+
+	printf("\n");
+
+	for (i = 0; i < NUM_STATUS_REGISTERS; i++)
+	{
+		printf("%02X ", LPC_Read(LPCRegisterList[i]));
+	}
+
+	printf("\n");
+
+	Fintek_PrintSBHE();
 }
 
 void Fintek_View_Range_Tables()
@@ -95,5 +141,10 @@ void Fintek_View_Range_Tables()
 	for (i = 0; i < NUM_GENERAL_DECODE_RANGES; i++)
 	{
 		Fintek_PrintRange(i);
+	}
+
+	for (i = 0; i < NUM_ROM_DECODE_RANGES; i++)
+	{
+		Fintek_PrintROM(i);
 	}
 }
