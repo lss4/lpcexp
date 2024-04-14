@@ -7,9 +7,15 @@
 #define DEV_INTEL_LPC_FUNC      0
 
 #define REG_INTEL_LPC_CTRL_INFO         0x00
+#define REG_INTEL_LPC_GPIO_BASE         0x48
+#define REG_INTEL_LPC_GPIO_CTRL         0x4C
 #define REG_INTEL_LPC_IO_DECODE_RANGE   0x80
 
 #define INTEL_ENABLE_FORWARD_4E4F       0x20000000
+#define INTEL_GPIO23_BIT                0x00800000
+
+#define INTEL_GPIO_REG_ENABLE           0x00000010
+#define INTEL_GPIO_LOCK                 0x00000001
 
 uint32_t LPCGenericDecode[] = {0x84, 0x88, 0x8C, 0x90};
 int num_intel_ranges = 0;
@@ -93,6 +99,44 @@ void Configure_LPC_Ranges()
     }
 }
 
+void CheckLDRQ1GPIOStatus()
+{
+    uint32_t gpiobase = Read_Intel_LPC(REG_INTEL_LPC_GPIO_BASE) & 0xFFFFFFFE;
+    uint32_t gpioctrl = Read_Intel_LPC(REG_INTEL_LPC_GPIO_CTRL);
+    uint32_t gpioflags;
+
+    #ifdef VERBOSE
+    printf("GPIO Base Address: %08lX\n", gpiobase);
+    printf("GPIO Control:      %08lX\n", gpioctrl);
+    #endif
+
+    if (!(gpioctrl & INTEL_GPIO_REG_ENABLE))
+    {
+        printf("GPIO register access not enabled. Enabling it.\n");
+        Write_Intel_LPC(REG_INTEL_LPC_GPIO_CTRL, gpioctrl | INTEL_GPIO_REG_ENABLE);
+    }
+
+    gpioflags = _inpd((uint16_t)gpiobase);
+
+    #ifdef VERBOSE
+    printf("GPIO 0-31 Use:     %08lX\n", gpioflags);
+    #endif
+
+    if (gpioflags & INTEL_GPIO23_BIT)
+    {
+        printf("LDRQ1# is being used as GPIO23.\n");
+        if (gpioctrl & INTEL_GPIO_LOCK)
+        {
+            printf("WARNING: GPIO control locked!\n");
+        }
+        else
+        {
+            printf("Changing LDRQ1# to native mode.\n");
+            _outpd((uint16_t)gpiobase, gpioflags & ~INTEL_GPIO23_BIT);
+        }
+    }
+}
+
 void ProcessIntelArgs(int argc, char* argv[])
 {
     // Usage : lpcisa [base1 mask1] [base2 mask2] [base3 mask3] [base4 mask4]
@@ -143,6 +187,7 @@ int main_intel(int argc, char* argv[])
 
 	// Enable forwarding 4E and 4F.
     Enable_LPC_Config_Forward();
+    CheckLDRQ1GPIOStatus();
 
     #ifdef VERBOSE
     printf("Current LPC Controller status after processing:\n");

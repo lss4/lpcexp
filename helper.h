@@ -13,6 +13,7 @@ void dec(uint32_t val);
 void writepci(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg, uint32_t val);
 uint32_t readpci(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg);
 void clearpci();
+void dma_reset();
 
 uint8_t read_amd_pm(uint8_t address);
 void write_amd_pm(uint8_t address, uint8_t val);

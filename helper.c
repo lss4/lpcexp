@@ -4,57 +4,32 @@
 
 #ifdef _M_I86
 // NOTE: When using 16-bit compiler, _inpd and _outpd are not available.
-//       Opcodes involving EAX must be emitted by hand when using 16-bit compiler.
-//       32-bit compiler natively supports _inpd and _outpd so they are not needed there.
+//       Use .386 directive in inline assembler to enable access to 32-bit
+//       registers such as eax.
 
 void _outpd(uint16_t addr, uint32_t value)
-{
-    uint16_t high = (uint16_t)(value >> 16);
-    uint16_t low = (uint16_t)(value & 0xFFFF);
-    
-    // 66C1C810 = ROR EAX, 0x10
-    // 66EF = OUT DX, EAX
+{    
     _asm {
+        .386
         mov dx, addr
-        mov ax, high
-        db 0x66
-        db 0xC1
-        db 0xC8
-        db 0x10
-        mov ax, low
-        db 0x66
-        db 0xEF
+        mov eax, value
+        out dx, eax
     };
-
 }
 
 uint32_t _inpd(uint16_t addr)
 {
-    uint32_t val;
-    uint16_t low;
-    uint16_t high;
+    uint32_t value;
 
-    // 66ED = IN EAX, DX
-    // 66C1C810 = ROR EAX, 0x10
     _asm {
+        .386
         mov dx, addr
-        db 0x66
-        db 0xED
-        mov low, ax
-        db 0x66
-        db 0xC1
-        db 0xC8
-        db 0x10
-        mov high, ax
+        in eax, dx
+        mov value, eax
     };
 
-    val = high;
-    val <<= 16;
-    val |= low;
-
-    return val;
+    return value;
 }
-
 #endif
 
 void listports(uint32_t BASE, uint32_t MASK)
@@ -158,4 +133,44 @@ uint32_t readpci(uint32_t bus, uint32_t device, uint32_t func, uint32_t pcireg)
 void clearpci()
 {
     _outpd(0xCF8, 0x00000000);
+}
+
+void dma_reset()
+{
+    // This resets DMA-related registers.
+    // Not required for RUBY-9719VG2AR, but likely needed for others.
+    
+    _outp(0x00, 0x00);
+    _outp(0x01, 0x00);
+    _outp(0x04, 0x00);
+    _outp(0x05, 0x00);
+    _outp(0x06, 0x00);
+    _outp(0x07, 0x00);
+    _outp(0x08, 0x00);
+    _outp(0x21, 0x00);
+    _outp(0x82, 0x00);
+    _outp(0x87, 0x00);
+    _outp(0x89, 0x00);
+    _outp(0x8A, 0x00);
+    _outp(0x8B, 0x00);
+    _outp(0xC0, 0x00);
+    _outp(0xC1, 0x00);
+    _outp(0xC2, 0x00);
+    _outp(0xC3, 0x00);
+    _outp(0xC4, 0x00);
+    _outp(0xC5, 0x00);
+    _outp(0xC6, 0x00);
+    _outp(0xC7, 0x00);
+    _outp(0xC8, 0x00);
+    _outp(0xC9, 0x00);
+    _outp(0xCA, 0x00);
+    _outp(0xCB, 0x00);
+    _outp(0xCC, 0x00);
+    _outp(0xCD, 0x00);
+    _outp(0xCE, 0x00);
+    _outp(0xCF, 0x00);
+    _outp(0xD0, 0x00);
+    _outp(0xD1, 0x00);
+    _outp(0xDE, 0x0E);
+    _outp(0xDF, 0x0E);
 }

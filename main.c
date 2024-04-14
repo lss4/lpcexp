@@ -53,5 +53,8 @@ int main(int argc, char* argv[])
         return ret;
     }
 
+    printf("Resetting DMA registers...\n");
+    dma_reset();
+
     return 0;
 }
