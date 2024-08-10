@@ -23,8 +23,10 @@
 #define REG_AMD_LPC_CLKCNTRL            0xD0
 #define REG_AMD_LPC_CLKRUNOPTION        0xD4
 
-#define AMD_ENABLE_LDRQ                 0x0000000C
-#define AMD_ENABLE_AUDIO_IO_MAP         0x93FFD700
+#define AMD_ENABLE_LDRQ                 0x0000000D
+#define AMD_ENABLE_LPCDMA               0x00000002
+
+#define AMD_ENABLE_AUDIO_IO_MAP         0x93FFD707
 #define AMD_ENABLE_ALTCFG_AND_WIDE_IO   0x03000006
 #define AMD_ENABLE_ALTCFG               0x00000002
 
@@ -205,8 +207,9 @@ void ConfigureSubtractiveDecoding()
 }
 #endif
 
-void EnableLDRQ()
+void EnableLPCDMA()
 {
+    Write_AMD_LPC(REG_AMD_LPC_PCI_CTRL, Read_AMD_LPC(REG_AMD_LPC_PCI_CTRL) | AMD_ENABLE_LPCDMA);
     Write_AMD_LPC(REG_AMD_LPC_MISC_CTRL, Read_AMD_LPC(REG_AMD_LPC_MISC_CTRL) | AMD_ENABLE_LDRQ);
 }
 
@@ -328,7 +331,7 @@ int main_amd(int argc, char* argv[])
 
     ProcessAMDArgs(argc, argv);
 
-    EnableLDRQ();
+    EnableLPCDMA();
     // DisableLPCCLK1GPIO();
     ConfigureLPCIOMapping();
     ConfigureLPCWideRanges();
